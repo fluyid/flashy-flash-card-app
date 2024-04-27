@@ -8,21 +8,33 @@ translated_font = ("Ariel", 60, "bold")
 
 data = pandas.read_csv("data/Top 100 German to English Words - Sheet1.csv")
 to_learn = data.to_dict(orient="records")
+current_card = {}
 
 # Functions
 
 
 def next_card():
+    global current_card, flip_timer
+    window.after_cancel(flip_timer)
     current_card = random.choice(to_learn)
-    print(current_card["German"])
-    canvas.itemconfig(card_title, text="German")
-    canvas.itemconfig(card_word, text=current_card["German"])
+    canvas.itemconfig(card_title, text="German", fill="black")
+    canvas.itemconfig(card_word, text=current_card["German"], fill="black")
+    canvas.itemconfig(card_background, image=card_front)
+    flip_timer = window.after(3000, func=flip_card)
+
+
+def flip_card():
+    canvas.itemconfig(card_title, text="English", fill="white")
+    canvas.itemconfig(card_word, text=current_card["English"], fill="white")
+    canvas.itemconfig(card_background, image=card_back)
 
 
 # Window
 window = Tk()
 window.title("Flashy")
 window.config(bg=BACKGROUND_COLOR, padx=50, pady=50)
+
+flip_timer = window.after(3000, func=flip_card)
 
 # Images
 right_image = PhotoImage(file="images/right.png")
@@ -32,7 +44,7 @@ card_back = PhotoImage(file="images/card_back.png")
 
 # Canvas
 canvas = Canvas(width=800, height=526, bg=BACKGROUND_COLOR, highlightthickness=0)
-canvas.create_image(400, 263, image=card_front)
+card_background = canvas.create_image(400, 263, image=card_front)
 card_title = name_of_language = canvas.create_text(400, 150, text="", font=language_name_font, fill="black")
 card_word = translated_version = canvas.create_text(400, 263, text="", font=translated_font, fill="black")
 canvas.grid(row=0, column=0, columnspan=2)
