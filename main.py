@@ -5,10 +5,15 @@ import random
 BACKGROUND_COLOR = "#B1DDC6"
 language_name_font = ("Ariel", 40, "italic")
 translated_font = ("Ariel", 60, "bold")
-
-data = pandas.read_csv("data/Top 100 German to English Words - Sheet1.csv")
-to_learn = data.to_dict(orient="records")
 current_card = {}
+
+try:
+    data = pandas.read_csv("data/words_to_learn.csv")
+except FileNotFoundError:
+    original_data = pandas.read_csv("data/Top 100 German to English Words - Sheet1.csv")
+    to_learn = original_data.to_dict(orient="records")
+else:
+    to_learn = data.to_dict(orient="records")
 
 # Functions
 
@@ -27,6 +32,13 @@ def flip_card():
     canvas.itemconfig(card_title, text="English", fill="white")
     canvas.itemconfig(card_word, text=current_card["English"], fill="white")
     canvas.itemconfig(card_background, image=card_back)
+
+
+def is_known():
+    to_learn.remove(current_card)
+    data = pandas.DataFrame(to_learn)
+    data.to_csv("data/words_to_learn.csv", index=False)
+    next_card()
 
 
 # Window
@@ -50,7 +62,7 @@ card_word = translated_version = canvas.create_text(400, 263, text="", font=tran
 canvas.grid(row=0, column=0, columnspan=2)
 
 # Button
-right_button = Button(image=right_image, highlightthickness=0, borderwidth=0, command=next_card)
+right_button = Button(image=right_image, highlightthickness=0, borderwidth=0, command=is_known)
 right_button.grid(row=1, column=1)
 
 wrong_button = Button(image=wrong_image, highlightthickness=0, borderwidth=0, command=next_card)
